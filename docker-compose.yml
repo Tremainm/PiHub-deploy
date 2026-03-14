@@ -1,0 +1,51 @@
+# docker-compose.yml — DEPLOYMENT REPO
+# No build: keys — images pulled from GHCR.
+# Run: docker compose pull && docker compose up -d
+
+services:
+
+  db:
+    image: postgres:17-alpine
+    env_file: .env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U pihub -d pihub"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - pihub-net
+
+  backend:
+    image: ghcr.io/tremainm/pihub-backend:latest
+    env_file: .env
+    environment:
+      - APP_ENV=docker
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    networks:
+      - pihub-net
+
+  frontend:
+    image: ghcr.io/tremainm/pihub-frontend:latest
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - pihub-net
+
+volumes:
+  postgres-data:
+
+networks:
+  pihub-net:
+    driver: bridge
