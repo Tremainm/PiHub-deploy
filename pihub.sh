@@ -64,6 +64,13 @@ echo "matter-server is ready."
 echo "Starting app stack..."
 docker compose up -d
 
+echo "Waiting for frontend to be ready..."
+until nc -z localhost 80 2>/dev/null; do
+    echo "  frontend not ready yet, retrying in 2s..."
+    sleep 2
+done
+echo "Frontend is ready."
+
 echo ""
 echo "PiHub is up at http://$(hostname -I | awk '{print $1}')"
 
