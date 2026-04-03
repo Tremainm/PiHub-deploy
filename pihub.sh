@@ -2,8 +2,8 @@
 set -e
 
 cd /home/pihub/Desktop/PiHub-deploy
-exec > /home/pihub/pihub-startup.log 2>&1
-echo "start.sh began at $(date)"
+exec > >(tee /home/pihub/pihub-startup.log) 2>&1
+echo "pihub.sh began at $(date)"
 
 if [ "$1" == "--options" ]; then
     echo "Usage: ./start.sh [flag]"
