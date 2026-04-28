@@ -46,6 +46,7 @@ services:
 volumes:
   postgres-data:
 
+# can reach eachother (frontend, backend, DB) by service name
 networks:
   pihub-net:
     driver: bridge
